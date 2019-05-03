@@ -15,6 +15,38 @@ const (
 	FloatLiteralToken
 	StringLiteralToken
 	IdentifierToken
+
+	DotToken
+	BangToken
+	AddToken
+	SubToken
+	MulToken
+	DivToken
+	ModToken
+	AssignToken
+	AddAssignToken
+	SubAssignToken
+	MulAssignToken
+	DivAssignToken
+	ModAssignToken
+	LetToken
+	ArrowToken
+	EqToken
+	NeToken
+	GtToken
+	LtToken
+	GeToken
+	LeToken
+
+	IfToken
+	ElsifToken
+	ElseToken
+	WhileToken
+	ContinueToken
+	BreakToken
+	ReturnToken
+	DefToken
+	VarToken
 )
 
 // Token are results of `Lexer.Lex`.
@@ -78,7 +110,7 @@ func (l *lexer) errorf(t Token, format string, args ...interface{}) error {
 	return fmt.Errorf("%s:%d:%d: " + format, append([](interface{}){l.fileName, t.Line(), t.Column()}, args...))
 }
 
-type lexingState uint
+type lexingState int
 
 const (
 	lexingInitial lexingState = iota
@@ -162,8 +194,6 @@ LEXING:
 				state = lexingHex
 			default:
 				l.ungetc(c)
-				t.kind = IntLiteralToken
-				t.value = 0
 				break LEXING
 			}
 		case lexingBinary:
@@ -172,12 +202,6 @@ LEXING:
 				addc(c)
 			default:
 				l.ungetc(c)
-				v, err := strconv.ParseInt(string(buf), 2, 64)
-				if err != nil {
-					return nil, err
-				}
-				t.kind = IntLiteralToken
-				t.value = int(v)
 				break LEXING
 			}
 		case lexingOctet:
@@ -186,12 +210,6 @@ LEXING:
 				addc(c)
 			default:
 				l.ungetc(c)
-				v, err := strconv.ParseInt(string(buf), 8, 64)
-				if err != nil {
-					return nil, err
-				}
-				t.kind = IntLiteralToken
-				t.value = int(v)
 				break LEXING
 			}
 		case lexingHex:
@@ -200,12 +218,6 @@ LEXING:
 				addc(c)
 			default:
 				l.ungetc(c)
-				v, err := strconv.ParseInt(string(buf), 16, 64)
-				if err != nil {
-					return nil, err
-				}
-				t.kind = IntLiteralToken
-				t.value = int(v)
 				break LEXING
 			}
 		case lexingNumber:
@@ -217,12 +229,6 @@ LEXING:
 				state = lexingFloat
 			default:
 				l.ungetc(c)
-				v, err := strconv.ParseInt(string(buf), 10, 64)
-				if err != nil {
-					return nil, err
-				}
-				t.kind = IntLiteralToken
-				t.value = int(v)
 				break LEXING
 			}
 		case lexingFloat:
@@ -234,12 +240,6 @@ LEXING:
 				state = lexingFloatEPartOrSign
 			default:
 				l.ungetc(c)
-				x, err := strconv.ParseFloat(string(buf), 64)
-				if err != nil {
-					return nil, err
-				}
-				t.kind = FloatLiteralToken
-				t.value = x
 				break LEXING
 			}
 		case lexingFloatEPartOrSign:
@@ -257,12 +257,7 @@ LEXING:
 				addc(c)
 			} else {
 				l.ungetc(c)
-				x, err := strconv.ParseFloat(string(buf), 64)
-				if err != nil {
-					return nil, err
-				}
-				t.kind = FloatLiteralToken
-				t.value = x
+				state = lexingFloat
 				break LEXING
 			}
 		case lexingDoubleQuoted:
@@ -292,25 +287,13 @@ LEXING:
 				addc(c)
 			} else {
 				l.ungetc(c)
-				s := string(buf)
-				t.kind = IdentifierToken
-				if k, ok := keywords[s]; ok {
-					t.kind = k
-				}
-				t.value = s
 				break LEXING
 			}
 		case lexingOperator:
 			addc(c)
 			if !isPrefixOfAnyOperator(string(buf)) {
 				l.ungetc(c)
-				s := string(buf[:len(buf)-1])
-				kind, ok := operators[s]
-				if !ok {
-					panic("must not happen")
-				}
-				t.kind = kind
-				t.value = s
+				buf = buf[:len(buf)-1]
 				break LEXING
 			}
 		default:
@@ -319,16 +302,101 @@ LEXING:
 	}
 
 	switch state {
+	case lexingZeroBegun:
+		t.kind = IntLiteralToken
+		t.value = 0
+	case lexingBinary:
+		v, err := strconv.ParseInt(string(buf), 2, 64)
+		if err != nil {
+			return nil, err
+		}
+		t.kind = IntLiteralToken
+		t.value = int(v)
+	case lexingOctet:
+		v, err := strconv.ParseInt(string(buf), 8, 64)
+		if err != nil {
+			return nil, err
+		}
+		t.kind = IntLiteralToken
+		t.value = int(v)
+	case lexingHex:
+		v, err := strconv.ParseInt(string(buf), 16, 64)
+		if err != nil {
+			return nil, err
+		}
+		t.kind = IntLiteralToken
+		t.value = int(v)
+	case lexingNumber:
+		v, err := strconv.ParseInt(string(buf), 10, 64)
+		if err != nil {
+			return nil, err
+		}
+		t.kind = IntLiteralToken
+		t.value = int(v)
+	case lexingFloat:
+		x, err := strconv.ParseFloat(string(buf), 64)
+		if err != nil {
+			return nil, err
+		}
+		t.kind = FloatLiteralToken
+		t.value = x
 	case lexingDoubleQuoted, lexingDoubleQuotedEscapeSequence:
 		return nil, l.errorf(&t, "unterminated string literal")
+	case lexingIdentifier:
+		s := string(buf)
+		t.kind = IdentifierToken
+		if k, ok := keywords[s]; ok {
+			t.kind = k
+		}
+		t.value = s
+	case lexingOperator:
+		s := string(buf)
+		kind, ok := operators[s]
+		if !ok {
+			panic("must not happen")
+		}
+		t.kind = kind
+		t.value = s
 	}
 
 	return &t, nil
 }
 
-var keywords = map[string]int{}
+var keywords = map[string]int{
+	"if": IfToken,
+	"elsif": ElsifToken,
+	"else": ElseToken,
+	"while": WhileToken,
+	"continue": ContinueToken,
+	"break": BreakToken,
+	"return": ReturnToken,
+	"def": DefToken,
+	"var": VarToken,
+}
 
-var operators = map[string]int{}
+var operators = map[string]int{
+	".": DotToken,
+	"!": BangToken,
+	"+": AddToken,
+	"-": SubToken,
+	"*": MulToken,
+	"/": DivToken,
+	"%": ModToken,
+	"=": AssignToken,
+	"+=": AddAssignToken,
+	"-=": SubAssignToken,
+	"*=": MulAssignToken,
+	"/=": DivAssignToken,
+	"%=": ModAssignToken,
+	":=": LetToken,
+	"->": ArrowToken,
+	"==": EqToken,
+	"!=": NeToken,
+	">": GtToken,
+	"<": LtToken,
+	">=": GeToken,
+	"<= ": LeToken,
+}
 
 func isPrefixOfAnyOperator(prefix string) bool {
 	for op := range operators {
