@@ -9,46 +9,6 @@ import (
 	"unicode"
 )
 
-const (
-	EOFToken = iota
-	IntLiteralToken
-	FloatLiteralToken
-	StringLiteralToken
-	IdentifierToken
-
-	DotToken
-	BangToken
-	AddToken
-	SubToken
-	MulToken
-	DivToken
-	ModToken
-	AssignToken
-	AddAssignToken
-	SubAssignToken
-	MulAssignToken
-	DivAssignToken
-	ModAssignToken
-	LetToken
-	ArrowToken
-	EqToken
-	NeToken
-	GtToken
-	LtToken
-	GeToken
-	LeToken
-
-	IfToken
-	ElsifToken
-	ElseToken
-	WhileToken
-	ContinueToken
-	BreakToken
-	ReturnToken
-	DefToken
-	VarToken
-)
-
 // Token are results of `Lexer.Lex`.
 // Entity of `Value` depends on `Kind`.
 type Token interface {
@@ -135,7 +95,7 @@ func (l *lexer) Lex() (Token, error) {
 		buf = append(buf, c)
 	}
 	state := lexingInitial
-	t := token{kind: EOFToken}
+	t := token{kind: 0}		// 0 means EOF
 
 LEXING:
 	for {

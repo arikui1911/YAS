@@ -30,7 +30,7 @@ func TestLexer(t *testing.T) {
 		kind int
 		val interface{}
 	}{
-		{"", EOFToken, nil},
+		{"", 0, nil},
 		{"123", IntLiteralToken, 123},
 		{"0b101", IntLiteralToken, 5},
 		{"0o123", IntLiteralToken, 83},
