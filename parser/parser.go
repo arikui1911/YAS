@@ -2,10 +2,14 @@ package parser
 
 import (
 	"fmt"
+	"io"
+	"strings"
 )
 
 //go:generate goyacc -o yas_yacc.go yas.y
 
+// ParseError represents parsing failure with some
+// location of cause
 type ParseError interface {
 	error
 	FileName() string
@@ -14,10 +18,10 @@ type ParseError interface {
 }
 
 type parseError struct {
-	message string
+	message  string
 	fileName string
-	line int
-	column int
+	line     int
+	column   int
 }
 
 func (e *parseError) Error() string {
@@ -30,10 +34,10 @@ func (e *parseError) Line() int { return e.line }
 
 func (e *parseError) Column() int { return e.column }
 
-
 type adaptor struct {
-	lex Lexer
+	lex       Lexer
 	lastToken Token
+	fileName  string
 }
 
 type ejectionSeat struct {
@@ -65,19 +69,33 @@ func (a *adaptor) Lex(lval *yySymType) int {
 }
 
 func (a *adaptor) Error(msg string) {
+	line := 1
+	column := 1
+	if a.lastToken != nil {
+		line = a.lastToken.Line()
+		column = a.lastToken.Column()
+	}
 	bailout(&parseError{
-		message: msg,
-		fileName: "-",
-		line: a.lastToken.Line(),
-		column: a.lastToken.Column(),
+		message:  msg,
+		fileName: a.fileName,
+		line:     line,
+		column:   column,
 	})
 }
 
-func doParse(l Lexer) (retErr error) {
-	a := &adaptor{lex: l}
+func doParse(l Lexer, fileName string) (retErr error) {
+	a := &adaptor{lex: l, fileName: fileName}
 	defer func() {
 		retErr = doRecover(recover())
 	}()
 	yyParse(a)
 	return
+}
+
+func ParseIO(src io.Reader, fileName string) error {
+	return doParse(NewLexer(src, fileName), fileName)
+}
+
+func ParseString(src string, fileName string) error {
+	return doParse(NewLexer(strings.NewReader(src), fileName), fileName)
 }

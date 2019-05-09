@@ -45,6 +45,13 @@ package parser
 %%
 
 program :
+        | expr
+        ;
+
+expr : primary
+     ;
+
+primary : IntLiteralToken
         ;
 
 %%
