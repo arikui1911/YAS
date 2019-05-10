@@ -1,14 +1,21 @@
 %{
 package parser
 
+import (
+    "github.com/arikui1911/YAS/ast"
+)
+
 %}
 
 %union {
     intVal int
+    node ast.Node
+    tok Token
 }
 
-%token 	IntLiteralToken
-        FloatLiteralToken
+%token<tok> 	IntLiteralToken
+
+%token 	FloatLiteralToken
         StringLiteralToken
         IdentifierToken
         DotToken
@@ -42,9 +49,14 @@ package parser
         DefToken
         VarToken
 
+%type<node> program expr primary
+
 %%
 
 program :
+        {
+            $$ = nil
+        }
         | expr
         ;
 
@@ -52,6 +64,9 @@ expr : primary
      ;
 
 primary : IntLiteralToken
+        {
+            $$ = ast.NewIntLiteral($1.Line(), $1.Column(), $1.Value())
+        }
         ;
 
 %%
