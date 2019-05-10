@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"github.com/arikui1911/YAS/ast"
 	"io"
 	"strings"
 )
@@ -38,6 +39,7 @@ type adaptor struct {
 	lex       Lexer
 	lastToken Token
 	fileName  string
+	result    ast.Node
 }
 
 type ejectionSeat struct {
@@ -65,6 +67,7 @@ func (a *adaptor) Lex(lval *yySymType) int {
 		bailout(err)
 	}
 	a.lastToken = tok
+	lval.tok = tok
 	return tok.Kind()
 }
 
@@ -83,19 +86,20 @@ func (a *adaptor) Error(msg string) {
 	})
 }
 
-func doParse(l Lexer, fileName string) (retErr error) {
+func doParse(l Lexer, fileName string) (retTree ast.Node, retErr error) {
 	a := &adaptor{lex: l, fileName: fileName}
 	defer func() {
+		retTree = a.result
 		retErr = doRecover(recover())
 	}()
 	yyParse(a)
 	return
 }
 
-func ParseIO(src io.Reader, fileName string) error {
+func ParseIO(src io.Reader, fileName string) (ast.Node, error) {
 	return doParse(NewLexer(src, fileName), fileName)
 }
 
-func ParseString(src string, fileName string) error {
+func ParseString(src string, fileName string) (ast.Node, error) {
 	return doParse(NewLexer(strings.NewReader(src), fileName), fileName)
 }

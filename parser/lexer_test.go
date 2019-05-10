@@ -25,10 +25,10 @@ func testOneToken(t *testing.T, src string, kind int, val interface{}) {
 }
 
 func TestLexer(t *testing.T) {
-	dataSet := []struct{
-		src string
+	dataSet := []struct {
+		src  string
 		kind int
-		val interface{}
+		val  interface{}
 	}{
 		{"", 0, nil},
 		{"123", IntLiteralToken, 123},
@@ -47,6 +47,12 @@ func TestLexer(t *testing.T) {
 		{"*", MulToken, nil},
 		{"/", DivToken, nil},
 		{"%", ModToken, nil},
+		{"(", LParenToken, nil},
+		{")", RParenToken, nil},
+		{"{", LBraceToken, nil},
+		{"}", RBraceToken, nil},
+		{"[", LBracketToken, nil},
+		{"]", RBracketToken, nil},
 		{"=", AssignToken, nil},
 		{"+=", AddAssignToken, nil},
 		{"-=", SubAssignToken, nil},

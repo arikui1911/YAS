@@ -3,9 +3,9 @@ package parser
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"strconv"
 	"strings"
-	"io"
 	"unicode"
 )
 
@@ -19,9 +19,9 @@ type Token interface {
 }
 
 type token struct {
-	kind int
-	value interface{}
-	line int
+	kind   int
+	value  interface{}
+	line   int
 	column int
 }
 
@@ -43,31 +43,31 @@ type Lexer interface {
 }
 
 type lexer struct {
-	src *bufio.Reader
+	src      *bufio.Reader
 	fileName string
-	line int
-	column int
+	line     int
+	column   int
 
-	pushbacked rune
+	pushbacked   rune
 	isPushbacked bool
-	lastLine int
-	lastColumn int
+	lastLine     int
+	lastColumn   int
 }
 
 // NewLexer creates a new instance of YAS lexer and return it.
 // `fileName` is used for some error message.
 func NewLexer(src io.Reader, fileName string) Lexer {
 	return &lexer{
-		src: bufio.NewReader(src),
-		fileName: fileName,
-		line: 1,
-		column: 0,
+		src:          bufio.NewReader(src),
+		fileName:     fileName,
+		line:         1,
+		column:       0,
 		isPushbacked: false,
 	}
 }
 
 func (l *lexer) errorf(t Token, format string, args ...interface{}) error {
-	return fmt.Errorf("%s:%d:%d: " + format, append([](interface{}){l.fileName, t.Line(), t.Column()}, args...))
+	return fmt.Errorf("%s:%d:%d: "+format, append([](interface{}){l.fileName, t.Line(), t.Column()}, args...))
 }
 
 type lexingState int
@@ -91,11 +91,11 @@ const (
 
 func (l *lexer) Lex() (Token, error) {
 	buf := []rune{}
-	addc := func(c rune){
+	addc := func(c rune) {
 		buf = append(buf, c)
 	}
 	state := lexingInitial
-	t := token{kind: 0}		// 0 means EOF
+	t := token{kind: 0} // 0 means EOF
 
 LEXING:
 	for {
@@ -323,38 +323,44 @@ LEXING:
 }
 
 var keywords = map[string]int{
-	"if": IfToken,
-	"elsif": ElsifToken,
-	"else": ElseToken,
-	"while": WhileToken,
+	"if":       IfToken,
+	"elsif":    ElsifToken,
+	"else":     ElseToken,
+	"while":    WhileToken,
 	"continue": ContinueToken,
-	"break": BreakToken,
-	"return": ReturnToken,
-	"def": DefToken,
-	"var": VarToken,
+	"break":    BreakToken,
+	"return":   ReturnToken,
+	"def":      DefToken,
+	"var":      VarToken,
 }
 
 var operators = map[string]int{
-	".": DotToken,
-	"!": BangToken,
-	"+": AddToken,
-	"-": SubToken,
-	"*": MulToken,
-	"/": DivToken,
-	"%": ModToken,
-	"=": AssignToken,
-	"+=": AddAssignToken,
-	"-=": SubAssignToken,
-	"*=": MulAssignToken,
-	"/=": DivAssignToken,
-	"%=": ModAssignToken,
-	":=": LetToken,
-	"->": ArrowToken,
-	"==": EqToken,
-	"!=": NeToken,
-	">": GtToken,
-	"<": LtToken,
-	">=": GeToken,
+	".":   DotToken,
+	"!":   BangToken,
+	"+":   AddToken,
+	"-":   SubToken,
+	"*":   MulToken,
+	"/":   DivToken,
+	"%":   ModToken,
+	"=":   AssignToken,
+	"(":   LParenToken,
+	")":   RParenToken,
+	"{":   LBraceToken,
+	"}":   RBraceToken,
+	"[":   LBracketToken,
+	"]":   RBracketToken,
+	"+=":  AddAssignToken,
+	"-=":  SubAssignToken,
+	"*=":  MulAssignToken,
+	"/=":  DivAssignToken,
+	"%=":  ModAssignToken,
+	":=":  LetToken,
+	"->":  ArrowToken,
+	"==":  EqToken,
+	"!=":  NeToken,
+	">":   GtToken,
+	"<":   LtToken,
+	">=":  GeToken,
 	"<= ": LeToken,
 }
 
