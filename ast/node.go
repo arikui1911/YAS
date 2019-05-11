@@ -33,13 +33,35 @@ func (p *pos) Line() int { return p.line }
 
 func (p *pos) Column() int { return p.column }
 
-type intLiteral struct {
+type VarRef struct {
+	pos
+	identifier string
+}
+
+func NewVarRef(line int, column int, identifier string) *VarRef {
+	return &VarRef{
+		pos: pos{
+			line:   line,
+			column: column,
+		},
+		identifier: identifier,
+	}
+}
+
+func (n *VarRef) Identifier() string { return n.identifier }
+
+func (n *VarRef) dump(f io.Writer, nNesting int) {
+	indent(f, nNesting)
+	fmt.Fprintf(f, "%T(%d:%d): %v\n", n, n.Line(), n.Column(), n.Identifier())
+}
+
+type IntLiteral struct {
 	pos
 	value int
 }
 
 func NewIntLiteral(line int, column int, v int) Node {
-	return &intLiteral{
+	return &IntLiteral{
 		pos: pos{
 			line:   line,
 			column: column,
@@ -48,20 +70,20 @@ func NewIntLiteral(line int, column int, v int) Node {
 	}
 }
 
-func (n *intLiteral) Value() int { return n.value }
+func (n *IntLiteral) Value() int { return n.value }
 
-func (n *intLiteral) dump(f io.Writer, nNesting int) {
+func (n *IntLiteral) dump(f io.Writer, nNesting int) {
 	indent(f, nNesting)
 	fmt.Fprintf(f, "%T(%d:%d): %v\n", n, n.Line(), n.Column(), n.Value())
 }
 
-type floatLiteral struct {
+type FloatLiteral struct {
 	pos
 	value float64
 }
 
 func NewFloatLiteral(line int, column int, v float64) Node {
-	return &floatLiteral{
+	return &FloatLiteral{
 		pos: pos{
 			line:   line,
 			column: column,
@@ -70,20 +92,20 @@ func NewFloatLiteral(line int, column int, v float64) Node {
 	}
 }
 
-func (n *floatLiteral) Value() float64 { return n.value }
+func (n *FloatLiteral) Value() float64 { return n.value }
 
-func (n *floatLiteral) dump(f io.Writer, nNesting int) {
+func (n *FloatLiteral) dump(f io.Writer, nNesting int) {
 	indent(f, nNesting)
 	fmt.Fprintf(f, "%T(%d:%d): %v\n", n, n.Line(), n.Column(), n.Value())
 }
 
-type stringLiteral struct {
+type StringLiteral struct {
 	pos
 	value string
 }
 
 func NewStringLiteral(line int, column int, v string) Node {
-	return &stringLiteral{
+	return &StringLiteral{
 		pos: pos{
 			line:   line,
 			column: column,
@@ -92,9 +114,9 @@ func NewStringLiteral(line int, column int, v string) Node {
 	}
 }
 
-func (n *stringLiteral) Value() string { return n.value }
+func (n *StringLiteral) Value() string { return n.value }
 
-func (n *stringLiteral) dump(f io.Writer, nNesting int) {
+func (n *StringLiteral) dump(f io.Writer, nNesting int) {
 	indent(f, nNesting)
 	fmt.Fprintf(f, "%T(%d:%d): %v\n", n, n.Line(), n.Column(), n.Value())
 }
