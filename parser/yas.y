@@ -76,6 +76,10 @@ primary : LParenToken expr RParenToken
         {
             $$ = $2
         }
+        | IdentifierToken
+        {
+            $$ = ast.NewVarRef($1.Line(), $1.Column(), $1.Value().(string))
+        }
         | IntLiteralToken
         {
             $$ = ast.NewIntLiteral($1.Line(), $1.Column(), $1.Value().(int))
