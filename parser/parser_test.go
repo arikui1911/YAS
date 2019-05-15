@@ -68,3 +68,45 @@ func TestParseVarRef(t *testing.T) {
 		t.Errorf("expect hoge but %v", node.Identifier())
 	}
 }
+
+func TestParseMinusExpression(t *testing.T) {
+	tree, err := ParseString(`-666`, "(test)")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	me, ok := tree.(*ast.MinusExpression)
+	if !ok {
+		t.Errorf("expect *ast.MinusExpression but %T", tree)
+		return
+	}
+	il, ok := me.Operand().(*ast.IntLiteral)
+	if !ok {
+		t.Errorf("expect *ast.IntLiteral but %T", me.Operand())
+		return
+	}
+	if il.Value() != 666 {
+		t.Errorf("expect 666 but %v", il.Value())
+	}
+}
+
+func TestParseNotExpression(t *testing.T) {
+	tree, err := ParseString(`!hoge`, "(test)")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	ne, ok := tree.(*ast.NotExpression)
+	if !ok {
+		t.Errorf("expect *ast.NotExpression but %T", tree)
+		return
+	}
+	vr, ok := ne.Operand().(*ast.VarRef)
+	if !ok {
+		t.Errorf("expect *ast.VarRef but %T", ne.Operand())
+		return
+	}
+	if vr.Identifier() != "hoge" {
+		t.Errorf("expect hoge but %v", vr.Identifier())
+	}
+}

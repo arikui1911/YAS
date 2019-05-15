@@ -336,6 +336,9 @@ var keywords = map[string]int{
 
 var operators = map[string]int{
 	".":   DotToken,
+	":":   ColonToken,
+	";":   SemicolonToken,
+	",":   CommaToken,
 	"!":   BangToken,
 	"+":   AddToken,
 	"-":   SubToken,

@@ -10,7 +10,7 @@ type IntLiteral struct {
 	value int
 }
 
-func NewIntLiteral(line int, column int, v int) Node {
+func NewIntLiteral(line int, column int, v int) *IntLiteral {
 	return &IntLiteral{
 		pos: pos{
 			line:   line,

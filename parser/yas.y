@@ -17,6 +17,9 @@ import (
             StringLiteralToken
             IdentifierToken
             DotToken
+            ColonToken
+            SemicolonToken
+            CommaToken
             BangToken
             AddToken
             SubToken
@@ -53,7 +56,7 @@ import (
             DefToken
             VarToken
 
-%type<node> program expr primary
+%type<node> program expr unary primary
 
 %%
 
@@ -69,8 +72,19 @@ program :
         }
         ;
 
-expr : primary
+expr : unary
      ;
+
+unary : primary
+      | BangToken unary
+      {
+          $$ = ast.NewNotExpression($1.Line(), $1.Column(), $2)
+      }
+      | SubToken unary
+      {
+          $$ = ast.NewMinusExpression($1.Line(), $1.Column(), $2)
+      }
+      ;
 
 primary : LParenToken expr RParenToken
         {

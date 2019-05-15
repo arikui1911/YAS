@@ -41,6 +41,9 @@ func TestLexer(t *testing.T) {
 		{"hoge", IdentifierToken, "hoge"},
 
 		{".", DotToken, nil},
+		{":", ColonToken, nil},
+		{";", SemicolonToken, nil},
+		{",", CommaToken, nil},
 		{"!", BangToken, nil},
 		{"+", AddToken, nil},
 		{"-", SubToken, nil},

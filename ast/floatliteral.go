@@ -10,7 +10,7 @@ type FloatLiteral struct {
 	value float64
 }
 
-func NewFloatLiteral(line int, column int, v float64) Node {
+func NewFloatLiteral(line int, column int, v float64) *FloatLiteral {
 	return &FloatLiteral{
 		pos: pos{
 			line:   line,

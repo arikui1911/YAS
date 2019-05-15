@@ -10,7 +10,7 @@ type StringLiteral struct {
 	value string
 }
 
-func NewStringLiteral(line int, column int, v string) Node {
+func NewStringLiteral(line int, column int, v string) *StringLiteral {
 	return &StringLiteral{
 		pos: pos{
 			line:   line,
