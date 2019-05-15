@@ -56,7 +56,7 @@ import (
             DefToken
             VarToken
 
-%type<node> program expr unary primary
+%type<node> program expr multive postfix unary primary
 
 %%
 
@@ -72,8 +72,17 @@ program :
         }
         ;
 
-expr : unary
+expr : multive
      ;
+
+multive : postfix
+        | multive MulToken postfix
+        | multive DivToken postfix
+        | multive ModToken postfix
+        ;
+
+postfix : unary
+        ;
 
 unary : primary
       | BangToken unary
