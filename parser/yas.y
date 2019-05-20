@@ -75,16 +75,22 @@ program :
 expr : multive
      ;
 
-multive : postfix
-        | multive MulToken postfix
-        | multive DivToken postfix
-        | multive ModToken postfix
+multive : unary
+        | multive MulToken unary
+        {
+            $$ = ast.NewMultiplicationExpression($2.Line(), $2.Column(), $1, $3)
+        }
+        | multive DivToken unary
+        {
+            $$ = ast.NewDivisionExpression($2.Line(), $2.Column(), $1, $3)
+        }
+        | multive ModToken unary
+        {
+            $$ = ast.NewModuloExpression($2.Line(), $2.Column(), $1, $3)
+        }
         ;
 
-postfix : unary
-        ;
-
-unary : primary
+unary : postfix
       | BangToken unary
       {
           $$ = ast.NewNotExpression($1.Line(), $1.Column(), $2)
@@ -94,6 +100,9 @@ unary : primary
           $$ = ast.NewMinusExpression($1.Line(), $1.Column(), $2)
       }
       ;
+
+postfix : primary
+        ;
 
 primary : LParenToken expr RParenToken
         {

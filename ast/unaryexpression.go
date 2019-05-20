@@ -30,14 +30,14 @@ type MinusExpression struct {
 	unaryExpression
 }
 
-type NotExpression struct {
-	unaryExpression
-}
-
 func NewMinusExpression(line int, column int, operand Node) (ret *MinusExpression) {
 	ret = &MinusExpression{}
 	ret.unaryExpression.initialize(line, column, operand)
 	return
+}
+
+type NotExpression struct {
+	unaryExpression
 }
 
 func NewNotExpression(line int, column int, operand Node) (ret *NotExpression) {

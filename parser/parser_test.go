@@ -110,3 +110,32 @@ func TestParseNotExpression(t *testing.T) {
 		t.Errorf("expect hoge but %v", vr.Identifier())
 	}
 }
+
+func TestParseMultiplicationExpression(t *testing.T) {
+	tree, err := ParseString(`123 * 456`, "(test)")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	me, ok := tree.(*ast.MultiplicationExpression)
+	if !ok {
+		t.Errorf("expect *ast.MultiplicationExpression but %T", tree)
+		return
+	}
+	lil, ok := me.Left().(*ast.IntLiteral)
+	if !ok {
+		t.Errorf("expect *ast.IntLiteral but %T", me.Left())
+		return
+	}
+	if lil.Value() != 123 {
+		t.Errorf("expect 123 but %v", lil.Value())
+	}
+	ril, ok := me.Right().(*ast.IntLiteral)
+	if !ok {
+		t.Errorf("expect *ast.IntLiteral but %T", me.Right())
+		return
+	}
+	if ril.Value() != 456 {
+		t.Errorf("expect 456 but %v", ril.Value())
+	}
+}
