@@ -33,6 +33,26 @@ func (n *binaryExpression) dump(f io.Writer, nNesting int) {
 	n.Right().dump(f, nNesting+1)
 }
 
+type AdditionExpression struct {
+	binaryExpression
+}
+
+func NewAdditionExpression(line int, column int, left Node, right Node) (ret *AdditionExpression) {
+	ret = &AdditionExpression{}
+	ret.binaryExpression.initialize(line, column, left, right)
+	return
+}
+
+type SubtractionExpression struct {
+	binaryExpression
+}
+
+func NewSubtractionExpression(line int, column int, left Node, right Node) (ret *SubtractionExpression) {
+	ret = &SubtractionExpression{}
+	ret.binaryExpression.initialize(line, column, left, right)
+	return
+}
+
 type MultiplicationExpression struct {
 	binaryExpression
 }

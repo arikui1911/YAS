@@ -122,6 +122,36 @@ func testIntLiteralNode(t *testing.T, subject ast.Node, expectValue int) {
 	}
 }
 
+func TestParseAdditionExpression(t *testing.T) {
+	tree, err := ParseString(`12 + 34`, "(test)")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	me, ok := tree.(*ast.AdditionExpression)
+	if !ok {
+		t.Errorf("expect *ast.AdditionExpression but %T", tree)
+		return
+	}
+	testIntLiteralNode(t, me.Left(), 12)
+	testIntLiteralNode(t, me.Right(), 34)
+}
+
+func TestParseSubtractionExpression(t *testing.T) {
+	tree, err := ParseString(`56 - 78`, "(test)")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	me, ok := tree.(*ast.SubtractionExpression)
+	if !ok {
+		t.Errorf("expect *ast.SubtractionExpression but %T", tree)
+		return
+	}
+	testIntLiteralNode(t, me.Left(), 56)
+	testIntLiteralNode(t, me.Right(), 78)
+}
+
 func TestParseMultiplicationExpression(t *testing.T) {
 	tree, err := ParseString(`123 * 456`, "(test)")
 	if err != nil {

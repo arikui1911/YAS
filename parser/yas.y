@@ -56,7 +56,7 @@ import (
             DefToken
             VarToken
 
-%type<node> program expr multive postfix unary primary
+%type<node> program expr additive multive postfix unary primary
 
 %%
 
@@ -72,8 +72,19 @@ program :
         }
         ;
 
-expr : multive
+expr : additive
      ;
+
+additive : multive
+         | additive AddToken multive
+         {
+            $$ = ast.NewAdditionExpression($2.Line(), $2.Column(), $1, $3)
+         }
+         | additive SubToken multive
+         {
+            $$ = ast.NewSubtractionExpression($2.Line(), $2.Column(), $1, $3)
+         }
+         ;
 
 multive : unary
         | multive MulToken unary
