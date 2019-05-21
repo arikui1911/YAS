@@ -111,6 +111,17 @@ func TestParseNotExpression(t *testing.T) {
 	}
 }
 
+func testIntLiteralNode(t *testing.T, subject ast.Node, expectValue int) {
+	li, ok := subject.(*ast.IntLiteral)
+	if !ok {
+		t.Errorf("expect *ast.IntLiteral but %T", subject)
+		return
+	}
+	if li.Value() != expectValue {
+		t.Errorf("expect %v but %v", expectValue, li.Value())
+	}
+}
+
 func TestParseMultiplicationExpression(t *testing.T) {
 	tree, err := ParseString(`123 * 456`, "(test)")
 	if err != nil {
@@ -122,20 +133,36 @@ func TestParseMultiplicationExpression(t *testing.T) {
 		t.Errorf("expect *ast.MultiplicationExpression but %T", tree)
 		return
 	}
-	lil, ok := me.Left().(*ast.IntLiteral)
-	if !ok {
-		t.Errorf("expect *ast.IntLiteral but %T", me.Left())
+	testIntLiteralNode(t, me.Left(), 123)
+	testIntLiteralNode(t, me.Right(), 456)
+}
+
+func TestParseDivisionExpression(t *testing.T) {
+	tree, err := ParseString(`666 / 3`, "(test)")
+	if err != nil {
+		t.Error(err)
 		return
 	}
-	if lil.Value() != 123 {
-		t.Errorf("expect 123 but %v", lil.Value())
-	}
-	ril, ok := me.Right().(*ast.IntLiteral)
+	de, ok := tree.(*ast.DivisionExpression)
 	if !ok {
-		t.Errorf("expect *ast.IntLiteral but %T", me.Right())
+		t.Errorf("expect *ast.DivisionExpression but %T", tree)
 		return
 	}
-	if ril.Value() != 456 {
-		t.Errorf("expect 456 but %v", ril.Value())
+	testIntLiteralNode(t, de.Left(), 666)
+	testIntLiteralNode(t, de.Right(), 3)
+}
+
+func TestParseModuloExpression(t *testing.T) {
+	tree, err := ParseString(`111 % 222`, "(test)")
+	if err != nil {
+		t.Error(err)
+		return
 	}
+	me, ok := tree.(*ast.ModuloExpression)
+	if !ok {
+		t.Errorf("expect *ast.ModuloExpression but %T", tree)
+		return
+	}
+	testIntLiteralNode(t, me.Left(), 111)
+	testIntLiteralNode(t, me.Right(), 222)
 }
