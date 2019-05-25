@@ -5,19 +5,34 @@ import (
 	"testing"
 )
 
+func testIntLiteralNode(t *testing.T, subject ast.Node, expectValue int) {
+	il, ok := subject.(*ast.IntLiteral)
+	if !ok {
+		t.Errorf("expect *ast.IntLiteral but %T", subject)
+		return
+	}
+	if il.Value() != expectValue {
+		t.Errorf("expect %v but %v", expectValue, il.Value())
+	}
+}
+
 func TestParseIntLiteral(t *testing.T) {
 	tree, err := ParseString("123", "(test)")
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	node, ok := tree.(*ast.IntLiteral)
+	testIntLiteralNode(t, tree, 123)
+}
+
+func testFloatLiteralNode(t *testing.T, subject ast.Node, expectValue float64) {
+	fl, ok := subject.(*ast.FloatLiteral)
 	if !ok {
-		t.Errorf("expect *ast.IntLiteral but %T", tree)
+		t.Errorf("expect *ast.FloatLiteral but %T", subject)
 		return
 	}
-	if node.Value() != 123 {
-		t.Errorf("expect 123 but %v", node.Value())
+	if fl.Value() != expectValue {
+		t.Errorf("expect %v but %v", expectValue, fl.Value())
 	}
 }
 
@@ -27,13 +42,17 @@ func TestParseFloatLiteral(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	node, ok := tree.(*ast.FloatLiteral)
+	testFloatLiteralNode(t, tree, 12.3)
+}
+
+func testStringLiteralNode(t *testing.T, subject ast.Node, expectValue string) {
+	sl, ok := subject.(*ast.StringLiteral)
 	if !ok {
-		t.Errorf("expect *ast.FloatLiteral but %T", tree)
+		t.Errorf("expect *ast.StringLiteral but %T", subject)
 		return
 	}
-	if node.Value() != 12.3 {
-		t.Errorf("expect 12.3 but %v", node.Value())
+	if sl.Value() != expectValue {
+		t.Errorf("expect %v but %v", expectValue, sl.Value())
 	}
 }
 
@@ -43,13 +62,17 @@ func TestParseStringLiteral(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	node, ok := tree.(*ast.StringLiteral)
+	testStringLiteralNode(t, tree, "Hello")
+}
+
+func testVarRefNode(t *testing.T, subject ast.Node, expectIdentifier string) {
+	vr, ok := subject.(*ast.VarRef)
 	if !ok {
-		t.Errorf("expect *ast.StringLiteral but %T", tree)
+		t.Errorf("expect *ast.VarRef but %T", subject)
 		return
 	}
-	if node.Value() != "Hello" {
-		t.Errorf("expect Hello but %v", node.Value())
+	if vr.Identifier() != expectIdentifier {
+		t.Errorf("expect %v but %v", expectIdentifier, vr.Identifier())
 	}
 }
 
@@ -59,14 +82,7 @@ func TestParseVarRef(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	node, ok := tree.(*ast.VarRef)
-	if !ok {
-		t.Errorf("expect *ast.VarRef but %T", tree)
-		return
-	}
-	if node.Identifier() != "hoge" {
-		t.Errorf("expect hoge but %v", node.Identifier())
-	}
+	testVarRefNode(t, tree, "hoge")
 }
 
 func TestParseMinusExpression(t *testing.T) {
@@ -80,14 +96,7 @@ func TestParseMinusExpression(t *testing.T) {
 		t.Errorf("expect *ast.MinusExpression but %T", tree)
 		return
 	}
-	il, ok := me.Operand().(*ast.IntLiteral)
-	if !ok {
-		t.Errorf("expect *ast.IntLiteral but %T", me.Operand())
-		return
-	}
-	if il.Value() != 666 {
-		t.Errorf("expect 666 but %v", il.Value())
-	}
+	testIntLiteralNode(t, me.Operand(), 666)
 }
 
 func TestParseNotExpression(t *testing.T) {
@@ -101,25 +110,7 @@ func TestParseNotExpression(t *testing.T) {
 		t.Errorf("expect *ast.NotExpression but %T", tree)
 		return
 	}
-	vr, ok := ne.Operand().(*ast.VarRef)
-	if !ok {
-		t.Errorf("expect *ast.VarRef but %T", ne.Operand())
-		return
-	}
-	if vr.Identifier() != "hoge" {
-		t.Errorf("expect hoge but %v", vr.Identifier())
-	}
-}
-
-func testIntLiteralNode(t *testing.T, subject ast.Node, expectValue int) {
-	li, ok := subject.(*ast.IntLiteral)
-	if !ok {
-		t.Errorf("expect *ast.IntLiteral but %T", subject)
-		return
-	}
-	if li.Value() != expectValue {
-		t.Errorf("expect %v but %v", expectValue, li.Value())
-	}
+	testVarRefNode(t, ne.Operand(), "hoge")
 }
 
 func TestParseAdditionExpression(t *testing.T) {
