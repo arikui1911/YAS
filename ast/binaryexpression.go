@@ -5,6 +5,11 @@ import (
 	"io"
 )
 
+type BinaryExpression interface {
+	Left() Node
+	Right() Node
+}
+
 type binaryExpression struct {
 	pos
 	left  Node
