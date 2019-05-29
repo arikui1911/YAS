@@ -32,3 +32,24 @@ type pos struct {
 func (p *pos) Line() int { return p.line }
 
 func (p *pos) Column() int { return p.column }
+
+type Root struct {
+	pos
+	FileName string
+	TopLevel Node
+}
+
+func NewRoot(topLevel Node, fileName string) *Root {
+	return &Root {
+		pos: pos {
+			line: topLevel.Line(),
+			column: topLevel.Column(),
+		},
+		FileName: fileName,
+		TopLevel: topLevel,
+	}
+}
+
+func (r *Root) dump(f io.Writer, nNesting int) {
+	r.TopLevel.dump(f, nNesting)
+}
