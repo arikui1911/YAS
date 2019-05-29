@@ -89,7 +89,7 @@ func (a *adaptor) Error(msg string) {
 func doParse(l Lexer, fileName string) (retTree ast.Node, retErr error) {
 	a := &adaptor{lex: l, fileName: fileName}
 	defer func() {
-		retTree = a.result
+		retTree = ast.NewRoot(a.result, fileName)
 		retErr = doRecover(recover())
 	}()
 	yyParse(a)
